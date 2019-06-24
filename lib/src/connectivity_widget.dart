@@ -3,17 +3,80 @@ import 'package:meta/meta.dart';
 import 'package:stream_disposable/stream_disposable.dart';
 
 import '../connectivity_widget.dart';
-import 'event.dart';
 
+/// Callback to be called when the phone is in offline mode
 typedef void OfflineCallback();
+
+/// Callback to be called when the phone is in online mode
 typedef void OnlineCallback();
+
+/// Builder method with [isOnline] parameter to build widgets
+/// in function of the connectivity status
 typedef Widget ConnectivityBuilder(BuildContext context, bool isOnline);
 
+/// Connectivity Widget
+///
+/// Widget that is aware of the network status from the network.
+///
+/// Has a a [builder] parameter so that the child widget can be built in
+/// accordance to the online/offline status.
+///
+/// A [onlineCallback] and [offlineCallback] are provided so that methods can
+/// be called when the device is turned online or offline, respectively
+///
+/// [offlineBanner] is the banner to be shown at the bottom of the child widget
+/// created in the [builder]. Its visibility can be switched off with the [offlineBanner]
+/// parameter
+///
+/// Example:
+///
+/// ```
+///   ConnectivityWidget(
+///        onlineCallback: _incrementCounter,
+///        builder: (context, isOnline) => Center(
+///          child: Column(
+///            mainAxisAlignment: MainAxisAlignment.center,
+///            children: <Widget>[
+///              Text("${isOnline ? 'Online' : 'Offline'}", style: TextStyle(fontSize: 30, color: isOnline ? Colors.green : Colors.red),),
+///              SizedBox(height: 20,),
+///              Text(
+///                'Number of times we connected to the internet:',
+///              ),
+///              Text(
+///                '$_counter',
+///                style: Theme.of(context).textTheme.display1,
+///              ),
+///            ],
+///          ),
+///        ),
+///      )
+/// ```
 class ConnectivityWidget extends StatefulWidget {
+  /// Builder method for the child widget.
+  ///
+  /// Provides a [iSOnline] parameter and a [context] to build the child
   final ConnectivityBuilder builder;
-  final Widget offlineBanner;
+
+  /// Callback for when the device is online
+  ///
+  /// Example:
+  ///
+  /// `onlineCallback: () => _incrementCounter()`
   final OnlineCallback onlineCallback;
+
+  /// Callback for when the device is offline
+  ///
+  /// Example:
+  ///
+  /// `onlineCallback: () => _decrementCounter()`
   final OfflineCallback offlineCallback;
+
+  /// OfflineBanner to be shown at the bottom of the widget
+  ///
+  /// If none is provided, the [_NoConnectivityBanner] is shown
+  final Widget offlineBanner;
+
+  /// Flag to show or hide the [offlineBanner]
   final bool showOfflineBanner;
 
   ConnectivityWidget(
@@ -41,8 +104,6 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   @mustCallSuper
   void initState() {
     super.initState();
-
-    ConnectivityBloc.instance.checkInternetConnectivitySink.add(Event());
 
     animationController = AnimationController(
         duration: const Duration(milliseconds: 500), vsync: this);
@@ -99,6 +160,8 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   }
 }
 
+
+/// Default Banner for offline mode
 class _NoConnectivityBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

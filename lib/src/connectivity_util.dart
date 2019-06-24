@@ -1,28 +1,38 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'event.dart';
 
+/// Callback to verify the response of the pinged server
 typedef VerifyResponseCallback = bool Function(String response);
 
 /// Connectivity Utils
 ///
 /// Helper class to determine phone connectivity
 class ConnectivityUtils {
-
+  /// Server to ping
+  ///
+  /// The server to ping and check the response, can be set with [setServerToPing]
   String _serverToPing = "http://www.google.com";
+
+  /// Verify Response Callback
+  ///
+  /// Callback to verify the response of the [_serverToPing]
   VerifyResponseCallback _callback = (_) => true;
+
+  /// Instance of dio
   Dio _dio;
 
+  /// Sets a new server to ping
   void setServerToPing(String serverToPing) {
     _serverToPing = serverToPing;
   }
 
-  void setCallback (VerifyResponseCallback callback) {
+  /// Sets a new VerifyResponseCallback
+  void setCallback(VerifyResponseCallback callback) {
     _callback = callback;
   }
 
@@ -32,32 +42,37 @@ class ConnectivityUtils {
     return _instance;
   }
 
-
   ConnectivityUtils._() {
     _dio = Dio();
-    
-    Connectivity().onConnectivityChanged
-        .listen((_) => _getConnectivityStatusSubject.add(Event()));
 
+    Connectivity().onConnectivityChanged.listen((_) =>
+        _getConnectivityStatusSubject.add(Event())
+    );
+
+    /// Stream that receives events and verifies the network status
     _getConnectivityStatusSubject.stream
-        .doOnData((_) => print ("Checking network status"))
         .asyncMap((_) => isPhoneConnected())
         .listen((value) async {
-      _connectivitySubject.add(value);
+      // only add a new value if we are changing state
+      if (value != _connectivitySubject.value) _connectivitySubject.add(value);
+      // if we are offline, retry until we are online
       if (!value) {
         await Future.delayed(Duration(seconds: 3));
         _getConnectivityStatusSubject.add(Event());
       }
     });
-
-    _getConnectivityStatusSubject.add(Event());
   }
 
+  /// Connectivity on/off events
   BehaviorSubject<bool> _connectivitySubject = BehaviorSubject<bool>();
+
   Stream<bool> get isPhoneConnectedStream => _connectivitySubject.stream;
 
-  BehaviorSubject<Event> _getConnectivityStatusSubject = BehaviorSubject<Event>();
-  Sink<Event> get getConnectivityStatusSink => _getConnectivityStatusSubject.sink;
+  /// Event to check the network status
+  PublishSubject<Event> _getConnectivityStatusSubject = PublishSubject<Event>();
+
+  Sink<Event> get getConnectivityStatusSink =>
+      _getConnectivityStatusSubject.sink;
 
   /// Checkf if phone is connected to the internet
   ///
@@ -68,10 +83,11 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
-      print("Pinging $_serverToPing");
       final result = await _dio.get(_serverToPing);
-      if (result.statusCode == 200 && _callback(result.data.toString())) return true;
-    } catch(e) {
+      if (result.statusCode == 200 && _callback(result.data.toString())) {
+        return true;
+      }
+    } catch (e) {
       return false;
     }
     return false;

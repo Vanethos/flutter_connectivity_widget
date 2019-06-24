@@ -3,9 +3,13 @@ import 'package:rxdart/rxdart.dart';
 import '../connectivity_widget.dart';
 import 'event.dart';
 
+/// Connectivity Bloc for [ConnectivityWidget]
+///
+/// Bloc that holds the state of the [ConnectivityWidget] and verifies with
+/// the [ConnectivityUtils] if there is a connection to the internet
 class ConnectivityBloc {
 
-  /// Connectivity status
+  /// Connectivity status Stream
   var connectivityStatusSubject = BehaviorSubject<bool>(seedValue: true);
 
   Sink<bool> get connectivityStatusSink => connectivityStatusSubject.sink;
@@ -19,13 +23,15 @@ class ConnectivityBloc {
       _checkInternetConnectivitySubject.sink;
 
   ConnectivityBloc._() {
+    /// Listens for the value from [ConnectivityUtils] and sends a new event
+    /// to the [ConnectivityWidget]
+    ConnectivityUtils.instance.isPhoneConnectedStream
+        .listen((value) {
+          if (value != null) connectivityStatusSink.add(value);
+    });
 
-    ConnectivityUtils.instance
-        .isPhoneConnectedStream
-        .listen(connectivityStatusSink.add);
-
-    _checkInternetConnectivitySubject.stream.listen(
-            (_) => ConnectivityUtils.instance.getConnectivityStatusSink.add(Event()));
+    _checkInternetConnectivitySubject.stream.listen((_) =>
+        ConnectivityUtils.instance.getConnectivityStatusSink.add(Event()));
   }
 
   static final ConnectivityBloc _instance = ConnectivityBloc._();
