@@ -4,6 +4,8 @@ A widget that shows the user if the phone is connected to the internet or not
 
 This is accomplished not only by verifying the status of the mobile network and/or wifi, but also by pinging a remote server and verifying its response.
 
+![Example](https://media.giphy.com/media/KDtcncGS3YufdzkKx5/giphy.gif)
+
 ## Using the ConnectivityWidget 
 
 The ConnectivityWidget uses a `builder` function that provides you a `isOnline` flag to build different screens for offline or online mode.
