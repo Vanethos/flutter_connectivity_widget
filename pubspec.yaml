@@ -1,0 +1,22 @@
+name: connectivity_widget
+description: A widget that is aware of the online&#x2F;offline state of the app
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  rxdart: ^0.20.0
+  connectivity: ^0.4.3+2
+  stream_disposable: ^0.1.0
+  dio: 2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
