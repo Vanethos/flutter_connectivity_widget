@@ -109,7 +109,7 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
         duration: const Duration(milliseconds: 500), vsync: this);
 
     if (dontAnimate == null &&
-        !ConnectivityBloc.instance.connectivityStatusSubject.value) {
+        !(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
       this.animationController.value = 1.0;
     }
 

@@ -46,7 +46,7 @@ class ConnectivityUtils {
     _dio = Dio();
 
     Connectivity().onConnectivityChanged.listen((_) =>
-        _getConnectivityStatusSubject.add(Event())
+        _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
     );
 
     /// Stream that receives events and verifies the network status
@@ -60,7 +60,14 @@ class ConnectivityUtils {
         await Future.delayed(Duration(seconds: 3));
         _getConnectivityStatusSubject.add(Event());
       }
+    }, onError: (error) async {
+      if (!_connectivitySubject.value) _connectivitySubject.add(false);
+      // if we are offline, retry until we are online
+      await Future.delayed(Duration(seconds: 3));
+      _getConnectivityStatusSubject.add(Event());
     });
+
+    _getConnectivityStatusSubject.add(Event());
   }
 
   /// Connectivity on/off events
