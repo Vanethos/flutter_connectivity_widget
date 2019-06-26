@@ -14,7 +14,7 @@ dependencies:
   rxdart: ^0.20.0
   connectivity: ^0.4.3+2
   stream_disposable: ^0.1.0
-  dio: 2.1.0
+  dio: ^2.1.0
 
 dev_dependencies:
   flutter_test:
