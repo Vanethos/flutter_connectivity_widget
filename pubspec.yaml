@@ -6,7 +6,7 @@ homepage: https://github.com/Vanethos/flutter_connectivity_widget/
 issue_tracker: https://github.com/Vanethos/flutter_connectivity_widget/issues
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
