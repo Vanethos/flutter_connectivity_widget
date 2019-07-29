@@ -115,8 +115,12 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
 
     disposable.add(
         ConnectivityBloc.instance.connectivityStatusStream.listen((status) {
+      /// At the start, if we have a status set, we must consider that we came from another screen with that status
       if (dontAnimate == null) {
         this.dontAnimate = true;
+        if (!(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+          this.animationController.value = 1.0;
+        }
         return;
       }
       if (!status) {
@@ -134,28 +138,23 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   Widget build(BuildContext context) {
     Widget child = StreamBuilder(
       stream: ConnectivityBloc.instance.connectivityStatusStream,
-      builder: (context, snapshot) =>
-          widget.builder(context, snapshot.data ?? true),
-    );
-
-    if (widget.showOfflineBanner) {
-      child = Stack(
+      builder: (context, snapshot) => Stack(
         children: <Widget>[
-          child,
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: SlideTransition(
-                  position: animationController.drive(Tween<Offset>(
-                    begin: const Offset(0.0, 1.0),
-                    end: Offset.zero,
-                  ).chain(CurveTween(
-                    curve: Curves.fastOutSlowIn,
-                  ))),
-                  child: widget.offlineBanner ?? _NoConnectivityBanner()))
+          widget.builder(context, snapshot.data ?? true),
+          if (widget.showOfflineBanner && !(snapshot.data ?? true))
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                    position: animationController.drive(Tween<Offset>(
+                      begin: const Offset(0.0, 1.0),
+                      end: Offset.zero,
+                    ).chain(CurveTween(
+                      curve: Curves.fastOutSlowIn,
+                    ))),
+                    child: widget.offlineBanner ?? _NoConnectivityBanner()))
         ],
-      );
-    }
-
+      )
+    );
     return child;
   }
 }
