@@ -115,8 +115,12 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
 
     disposable.add(
         ConnectivityBloc.instance.connectivityStatusStream.listen((status) {
+      /// At the start, if we have a status set, we must consider that we came from another screen with that status
       if (dontAnimate == null) {
         this.dontAnimate = true;
+        if (!(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+          this.animationController.value = 1.0;
+        }
         return;
       }
       if (!status) {
