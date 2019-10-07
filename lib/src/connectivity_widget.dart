@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:stream_disposable/stream_disposable.dart';
 
 import '../connectivity_widget.dart';
