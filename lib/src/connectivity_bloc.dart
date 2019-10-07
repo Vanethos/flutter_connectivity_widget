@@ -1,6 +1,6 @@
 import 'package:rxdart/rxdart.dart';
 
-import '../connectivity_widget.dart';
+import 'connectivity_util.dart';
 import 'event.dart';
 
 /// Connectivity Bloc for [ConnectivityWidget]
@@ -10,7 +10,7 @@ import 'event.dart';
 class ConnectivityBloc {
 
   /// Connectivity status Stream
-  var connectivityStatusSubject = BehaviorSubject<bool>(seedValue: true);
+  var connectivityStatusSubject = BehaviorSubject<bool>();
 
   Sink<bool> get connectivityStatusSink => connectivityStatusSubject.sink;
 
