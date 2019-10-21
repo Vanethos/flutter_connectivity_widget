@@ -12,7 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   rxdart: ^0.22.0
-  connectivity: ^0.4.3+2
+  connectivity:
+    git:
+      url: https://github.com/Vanethos/connectivity_api_23
+      ref: master
   stream_disposable: ^0.1.0
   dio: ^2.1.0
 

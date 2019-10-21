@@ -32,10 +32,12 @@ packages:
   connectivity:
     dependency: "direct main"
     description:
-      name: connectivity
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.3+2"
+      path: "."
+      ref: master
+      resolved-ref: "4b48db364d669fca8bdedc2856d61cfe6e6763f9"
+      url: "https://github.com/Vanethos/connectivity_api_23"
+    source: git
+    version: "0.4.4"
   cookie_jar:
     dependency: transitive
     description:
@@ -49,7 +51,7 @@ packages:
       name: dio
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.13"
+    version: "2.2.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -101,7 +103,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.22.1"
+    version: "0.22.3"
   sky_engine:
     dependency: transitive
     description: flutter
