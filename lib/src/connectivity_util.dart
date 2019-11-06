@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'package:http/http.dart' as http;
 
 import 'event.dart';
 
@@ -23,9 +25,6 @@ class ConnectivityUtils {
   /// Callback to verify the response of the [_serverToPing]
   VerifyResponseCallback _callback = (_) => true;
 
-  /// Instance of dio
-  Dio _dio;
-
   /// Sets a new server to ping
   void setServerToPing(String serverToPing) {
     _serverToPing = serverToPing;
@@ -43,8 +42,6 @@ class ConnectivityUtils {
   }
 
   ConnectivityUtils._() {
-    _dio = Dio();
-
     Connectivity().onConnectivityChanged.listen((_) =>
         _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
     );
@@ -90,8 +87,10 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
-      final result = await _dio.get(_serverToPing);
-      if (result.statusCode == 200 && _callback(result.data.toString())) {
+
+      // ignore: close_sinks
+      final result = await http.get(_serverToPing);
+      if (result.statusCode == 200 && _callback(result.body)) {
         return true;
       }
     } catch (e) {
