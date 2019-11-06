@@ -1,3 +1,6 @@
+## [0.1.3]
+* Fix Dio dependency still present in repo
+
 ## [0.1.2]
 * Update example
 * Remove Dio from dependencies 
