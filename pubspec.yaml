@@ -11,10 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  rxdart: ^0.22.0
-  connectivity: ^0.4.3+2
+  rxdart: ^0.22.3
+  connectivity: ^0.4.4
   stream_disposable: ^0.1.0
-  dio: ^2.1.0
+  http: ^0.12.0+2
 
 dev_dependencies:
   flutter_test:
