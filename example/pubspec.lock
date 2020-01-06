@@ -32,9 +32,11 @@ packages:
   connectivity:
     dependency: transitive
     description:
-      name: connectivity
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: d3193d13f0a22eaa6e9e2a9e36f5926bf393bbc1
+      url: "https://github.com/Vanethos/connectivity_api_23"
+    source: git
     version: "0.4.4"
   connectivity_widget:
     dependency: "direct main"
@@ -42,7 +44,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.2"
+    version: "0.1.3"
   cupertino_icons:
     dependency: "direct main"
     description:
