@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:connectivity/connectivity.dart';
+import 'package:simple_connectivity/simple_connectivity.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:http/http.dart' as http;

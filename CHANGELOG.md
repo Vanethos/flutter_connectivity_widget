@@ -1,3 +1,7 @@
+## [0.1.4]
+* Change implementation from connectivity to simple_connectivity so that location-aware `Info-plist`
+strings are no longer required
+
 ## [0.1.3]
 * Fix Dio dependency still present in repo
 * Change example
