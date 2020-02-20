@@ -7,8 +7,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //setup connectivity server to ping and callback
-    ConnectivityUtils.instance.setCallback((response) => response.contains("This is a test!"));
-    ConnectivityUtils.instance.setServerToPing("https://gist.githubusercontent.com/Vanethos/dccc4b4605fc5c5aa4b9153dacc7391c/raw/355ccc0e06d0f84fdbdc83f5b8106065539d9781/gistfile1.txt");
+    ConnectivityUtils.initialize(
+        serverToPing:
+            "https://gist.githubusercontent.com/Vanethos/dccc4b4605fc5c5aa4b9153dacc7391c/raw/355ccc0e06d0f84fdbdc83f5b8106065539d9781/gistfile1.txt",
+        callback: (response) => response.contains("This is a test!"));
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -50,8 +52,14 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text("${isOnline ? 'Online' : 'Offline'}", style: TextStyle(fontSize: 30, color: isOnline ? Colors.green : Colors.red),),
-              SizedBox(height: 20,),
+              Text(
+                "${isOnline ? 'Online' : 'Offline'}",
+                style: TextStyle(
+                    fontSize: 30, color: isOnline ? Colors.green : Colors.red),
+              ),
+              SizedBox(
+                height: 20,
+              ),
               Text(
                 'Number of times we connected to the internet:',
               ),

@@ -28,6 +28,7 @@ class ConnectivityUtils {
   /// Sets a new server to ping
   void setServerToPing(String serverToPing) {
     _serverToPing = serverToPing;
+    _getConnectivityStatusSubject.add(Event());
   }
 
   /// Sets a new VerifyResponseCallback
@@ -35,13 +36,25 @@ class ConnectivityUtils {
     _callback = callback;
   }
 
-  static final ConnectivityUtils _instance = ConnectivityUtils._();
+  static ConnectivityUtils _instance;
 
-  static ConnectivityUtils get instance {
+  /// Initializes the ConnectivityUtils instance by giving it a [serverToPing] and [callback]
+  static ConnectivityUtils initialize({String serverToPing, VerifyResponseCallback callback}) {
+    _instance = ConnectivityUtils._(serverToPing : serverToPing, callback : callback);
     return _instance;
   }
 
-  ConnectivityUtils._() {
+  static ConnectivityUtils get instance {
+    if (_instance == null) {
+      _instance = ConnectivityUtils._();
+    }
+    return _instance;
+  }
+
+  ConnectivityUtils._({String serverToPing, VerifyResponseCallback callback}) {
+    this._serverToPing = serverToPing;
+    this._callback = callback;
+
     Connectivity().onConnectivityChanged.listen((_) =>
         _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
     );
