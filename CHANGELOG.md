@@ -1,3 +1,7 @@
+# [0.1.5]
+* Added `ConnectivityUtils.initialize` to initialize with the `serverToPing` and `callback`, so that the first time 
+we check the internet access we ping the correct server and use the provided callback
+
 ## [0.1.4+1]
 * Update dependencies
 
