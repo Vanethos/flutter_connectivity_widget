@@ -18,7 +18,7 @@ class ConnectivityUtils {
   /// Server to ping
   ///
   /// The server to ping and check the response, can be set with [setServerToPing]
-  String _serverToPing = "http://www.google.com";
+  String _serverToPing = "http://www.gstatic.com/generate_204";
 
   /// Verify Response Callback
   ///
@@ -103,7 +103,7 @@ class ConnectivityUtils {
 
       // ignore: close_sinks
       final result = await http.get(_serverToPing);
-      if (result.statusCode == 200 && _callback(result.body)) {
+      if (result.statusCode > 199 && result.statusCode < 400 && _callback(result.body)) {
         return true;
       }
     } catch (e) {
