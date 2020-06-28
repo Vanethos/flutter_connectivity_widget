@@ -52,8 +52,8 @@ class ConnectivityUtils {
   }
 
   ConnectivityUtils._({String serverToPing, VerifyResponseCallback callback}) {
-    this._serverToPing = serverToPing;
-    this._callback = callback;
+    this._serverToPing = serverToPing != null ? serverToPing : this._serverToPing;
+    this._callback = callback != null ? callback : this._callback;
 
     Connectivity().onConnectivityChanged.listen((_) =>
         _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
