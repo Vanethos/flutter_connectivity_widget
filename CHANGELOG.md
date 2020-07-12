@@ -1,3 +1,6 @@
+# [0.1.7]
+* Set default `serverToPing` and `callback` values if set to null via [#19](https://github.com/Vanethos/flutter_connectivity_widget/pull/19)
+
 # [0.1.6]
 * Changed the default connectivity URL via [#13](https://github.com/Vanethos/flutter_connectivity_widget/pull/15)
 * Updated RxDart version via [15](https://github.com/Vanethos/flutter_connectivity_widget/pull/13)
