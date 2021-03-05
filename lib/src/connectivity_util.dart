@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:simple_connectivity/simple_connectivity.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:http/http.dart' as http;
@@ -18,7 +17,7 @@ class ConnectivityUtils {
   /// Server to ping
   ///
   /// The server to ping and check the response, can be set with [setServerToPing]
-  String _serverToPing = "http://www.gstatic.com/generate_204";
+  List<String> _serverToPing = ["www.gstatic.com", "generate_204"];
 
   /// Verify Response Callback
   ///
@@ -26,7 +25,7 @@ class ConnectivityUtils {
   VerifyResponseCallback _callback = (_) => true;
 
   /// Sets a new server to ping
-  void setServerToPing(String serverToPing) {
+  void setServerToPing(List<String> serverToPing) {
     _serverToPing = serverToPing;
     _getConnectivityStatusSubject.add(Event());
   }
@@ -39,8 +38,10 @@ class ConnectivityUtils {
   static ConnectivityUtils _instance;
 
   /// Initializes the ConnectivityUtils instance by giving it a [serverToPing] and [callback]
-  static ConnectivityUtils initialize({String serverToPing, VerifyResponseCallback callback}) {
-    _instance = ConnectivityUtils._(serverToPing : serverToPing, callback : callback);
+  static ConnectivityUtils initialize(
+      {List<String> serverToPing, VerifyResponseCallback callback}) {
+    _instance =
+        ConnectivityUtils._(serverToPing: serverToPing, callback: callback);
     return _instance;
   }
 
@@ -51,13 +52,15 @@ class ConnectivityUtils {
     return _instance;
   }
 
-  ConnectivityUtils._({String serverToPing, VerifyResponseCallback callback}) {
-    this._serverToPing = serverToPing != null ? serverToPing : this._serverToPing;
+  ConnectivityUtils._(
+      {List<String> serverToPing, VerifyResponseCallback callback}) {
+    this._serverToPing =
+        serverToPing != null ? serverToPing : this._serverToPing;
     this._callback = callback != null ? callback : this._callback;
 
-    Connectivity().onConnectivityChanged.listen((_) =>
-        _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
-    );
+    Connectivity().onConnectivityChanged.listen(
+        (_) => _getConnectivityStatusSubject.add(Event()),
+        onError: (_) => _getConnectivityStatusSubject.add(Event()));
 
     /// Stream that receives events and verifies the network status
     _getConnectivityStatusSubject.stream
@@ -100,11 +103,13 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
-
       // ignore: close_sinks
-      final result = await http.get(_serverToPing);
-      if (result.statusCode > 199 && result.statusCode < 400 && _callback(result.body)) {
-        return true;
+      final httpsUri = Uri.https(_serverToPing[0], _serverToPing[1]);
+      final result = await http.get(httpsUri);
+      if (result.statusCode > 199 && result.statusCode < 400) {
+        if (_callback(result.body) == true) {
+          return true;
+        }
       }
     } catch (e) {
       return false;

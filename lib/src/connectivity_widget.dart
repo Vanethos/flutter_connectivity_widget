@@ -108,7 +108,9 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
         duration: const Duration(milliseconds: 500), vsync: this);
 
     if (dontAnimate == null &&
-        !(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+        !(ConnectivityBloc
+                .instance.connectivityStatusSubject.valueWrapper?.value ??
+            true)) {
       this.animationController.value = 1.0;
     }
 
@@ -117,7 +119,9 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
       /// At the start, if we have a status set, we must consider that we came from another screen with that status
       if (dontAnimate == null) {
         this.dontAnimate = true;
-        if (!(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+        if (!(ConnectivityBloc
+                .instance.connectivityStatusSubject.valueWrapper?.value ??
+            true)) {
           this.animationController.value = 1.0;
         }
         return;
@@ -136,28 +140,27 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   @override
   Widget build(BuildContext context) {
     Widget child = StreamBuilder(
-      stream: ConnectivityBloc.instance.connectivityStatusStream,
-      builder: (context, snapshot) => Stack(
-        children: <Widget>[
-          widget.builder(context, snapshot.data ?? true),
-          if (widget.showOfflineBanner && !(snapshot.data ?? true))
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: SlideTransition(
-                    position: animationController.drive(Tween<Offset>(
-                      begin: const Offset(0.0, 1.0),
-                      end: Offset.zero,
-                    ).chain(CurveTween(
-                      curve: Curves.fastOutSlowIn,
-                    ))),
-                    child: widget.offlineBanner ?? _NoConnectivityBanner()))
-        ],
-      )
-    );
+        stream: ConnectivityBloc.instance.connectivityStatusStream,
+        builder: (context, snapshot) => Stack(
+              children: <Widget>[
+                widget.builder(context, snapshot.data ?? true),
+                if (widget.showOfflineBanner && !(snapshot.data ?? true))
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SlideTransition(
+                          position: animationController.drive(Tween<Offset>(
+                            begin: const Offset(0.0, 1.0),
+                            end: Offset.zero,
+                          ).chain(CurveTween(
+                            curve: Curves.fastOutSlowIn,
+                          ))),
+                          child:
+                              widget.offlineBanner ?? _NoConnectivityBanner()))
+              ],
+            ));
     return child;
   }
 }
-
 
 /// Default Banner for offline mode
 class _NoConnectivityBanner extends StatelessWidget {
