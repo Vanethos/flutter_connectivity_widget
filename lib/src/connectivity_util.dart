@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:http/http.dart' as http;
@@ -58,9 +59,12 @@ class ConnectivityUtils {
         serverToPing != null ? serverToPing : this._serverToPing;
     this._callback = callback != null ? callback : this._callback;
 
-    Connectivity().onConnectivityChanged.listen(
-        (_) => _getConnectivityStatusSubject.add(Event()),
-        onError: (_) => _getConnectivityStatusSubject.add(Event()));
+    // TODO: Fix for Web, onConnectivityChanged.listen throws error QAPP-50
+    if (!kIsWeb) {
+      Connectivity().onConnectivityChanged.listen(
+          (_) => _getConnectivityStatusSubject.add(Event()),
+          onError: (_) => _getConnectivityStatusSubject.add(Event()));
+    }
 
     /// Stream that receives events and verifies the network status
     _getConnectivityStatusSubject.stream
@@ -102,18 +106,22 @@ class ConnectivityUtils {
   /// returns [Future<bool>] with value [true] of connected to the
   /// internet
   Future<bool> isPhoneConnected() async {
-    try {
-      // ignore: close_sinks
-      final httpsUri = Uri.https(_serverToPing[0], _serverToPing[1]);
-      final result = await http.get(httpsUri);
-      if (result.statusCode > 199 && result.statusCode < 400) {
-        if (_callback(result.body) == true) {
-          return true;
+    // TODO: Make a fix for Web Version, CORS on Web doesn't allow ping new resources
+    if (!kIsWeb) {
+      try {
+        // ignore: close_sinks
+        final httpsUri = Uri.https(_serverToPing[0], _serverToPing[1]);
+        final result = await http.get(httpsUri);
+        if (result.statusCode > 199 && result.statusCode < 400) {
+          if (_callback(result.body) == true) {
+            return true;
+          }
         }
+      } catch (e) {
+        return false;
       }
-    } catch (e) {
       return false;
     }
-    return false;
+    return true;
   }
 }
