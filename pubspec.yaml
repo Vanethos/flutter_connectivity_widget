@@ -13,7 +13,7 @@ dependencies:
   rxdart: ^0.24.0
   simple_connectivity: ^0.1.1
   stream_disposable: ^0.1.0
-  http: ^0.12.0+2
+  http: ^0.13.0
 
 dev_dependencies:
   flutter_test:
