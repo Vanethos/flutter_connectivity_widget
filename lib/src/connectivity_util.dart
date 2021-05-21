@@ -39,10 +39,8 @@ class ConnectivityUtils {
   static ConnectivityUtils _instance;
 
   /// Initializes the ConnectivityUtils instance by giving it a [serverToPing] and [callback]
-  static ConnectivityUtils initialize(
-      {String serverToPing, VerifyResponseCallback callback}) {
-    _instance =
-        ConnectivityUtils._(serverToPing: serverToPing, callback: callback);
+  static ConnectivityUtils initialize({String serverToPing, VerifyResponseCallback callback}) {
+    _instance = ConnectivityUtils._(serverToPing : serverToPing, callback : callback);
     return _instance;
   }
 
@@ -54,13 +52,12 @@ class ConnectivityUtils {
   }
 
   ConnectivityUtils._({String serverToPing, VerifyResponseCallback callback}) {
-    this._serverToPing =
-        serverToPing != null ? serverToPing : this._serverToPing;
+    this._serverToPing = serverToPing != null ? serverToPing : this._serverToPing;
     this._callback = callback != null ? callback : this._callback;
 
-    Connectivity().onConnectivityChanged.listen(
-        (_) => _getConnectivityStatusSubject.add(Event()),
-        onError: (_) => _getConnectivityStatusSubject.add(Event()));
+    Connectivity().onConnectivityChanged.listen((_) =>
+        _getConnectivityStatusSubject.add(Event()), onError: (_) => _getConnectivityStatusSubject.add(Event())
+    );
 
     /// Stream that receives events and verifies the network status
     _getConnectivityStatusSubject.stream
@@ -103,11 +100,10 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
+
       // ignore: close_sinks
       final result = await http.get(Uri.parse(_serverToPing));
-      if (result.statusCode > 199 &&
-          result.statusCode < 400 &&
-          _callback(result.body)) {
+      if (result.statusCode > 199 && result.statusCode < 400 && _callback(result.body)) {
         return true;
       }
     } catch (e) {
