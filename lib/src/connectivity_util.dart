@@ -102,7 +102,7 @@ class ConnectivityUtils {
     try {
 
       // ignore: close_sinks
-      final result = await http.get(_serverToPing);
+      final result = await http.get(Uri.parse(_serverToPing));
       if (result.statusCode > 199 && result.statusCode < 400 && _callback(result.body)) {
         return true;
       }
