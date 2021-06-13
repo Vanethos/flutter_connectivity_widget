@@ -1,3 +1,5 @@
+# [0.1.8]
+* Updates http dependency, via [#26](https://github.com/Vanethos/flutter_connectivity_widget/pull/26), thanks to jezer07 
 # [0.1.7]
 * Set default `serverToPing` and `callback` values if set to null via [#19](https://github.com/Vanethos/flutter_connectivity_widget/pull/19)
 
