@@ -59,3 +59,8 @@ Stream<bool> ConnectivityUtils.instance.isPhoneConnectedStream // gets the curre
 Future<bool> ConnectivityUtils.instance.isPhoneConnected() // future that determines network status
 ```
 
+#### Note on Web:
+
+Although we can verify the status of the connection in web, what happens is that browsers will cache a request to a specific endpoint, so 
+we cannot verify for certain if the connection is down or if we are using cache, using the methods presented in this package.
+

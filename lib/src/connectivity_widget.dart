@@ -3,12 +3,6 @@ import 'package:stream_disposable/stream_disposable.dart';
 
 import '../connectivity_widget.dart';
 
-/// Callback to be called when the phone is in offline mode
-typedef void OfflineCallback();
-
-/// Callback to be called when the phone is in online mode
-typedef void OnlineCallback();
-
 /// Builder method with [isOnline] parameter to build widgets
 /// in function of the connectivity status
 typedef Widget ConnectivityBuilder(BuildContext context, bool isOnline);
@@ -54,37 +48,41 @@ class ConnectivityWidget extends StatefulWidget {
   /// Builder method for the child widget.
   ///
   /// Provides a [iSOnline] parameter and a [context] to build the child
-  final ConnectivityBuilder builder;
+  final ConnectivityBuilder? builder;
 
   /// Callback for when the device is online
   ///
   /// Example:
   ///
   /// `onlineCallback: () => _incrementCounter()`
-  final OnlineCallback onlineCallback;
+  final VoidCallback? onlineCallback;
 
   /// Callback for when the device is offline
   ///
   /// Example:
   ///
   /// `onlineCallback: () => _decrementCounter()`
-  final OfflineCallback offlineCallback;
+  final VoidCallback? offlineCallback;
 
   /// OfflineBanner to be shown at the bottom of the widget
   ///
-  /// If none is provided, the [_NoConnectivityBanner] is shown
-  final Widget offlineBanner;
+  /// If none is provided, the [NoConnectivityBanner] is shown
+  final Widget? offlineBanner;
 
   /// Flag to show or hide the [offlineBanner]
   final bool showOfflineBanner;
+
+  /// Disables animations
+  final bool disableAnimations;
 
   ConnectivityWidget(
       {this.builder,
       this.onlineCallback,
       this.offlineCallback,
       this.showOfflineBanner = true,
+      this.disableAnimations = false,
       this.offlineBanner,
-      Key key})
+      Key? key})
       : super(key: key);
 
   @override
@@ -93,9 +91,9 @@ class ConnectivityWidget extends StatefulWidget {
 
 class ConnectivityWidgetState extends State<ConnectivityWidget>
     with SingleTickerProviderStateMixin {
-  bool dontAnimate;
+  late bool dontAnimate;
 
-  AnimationController animationController;
+  late AnimationController animationController;
 
   StreamDisposable disposable = StreamDisposable();
 
@@ -104,30 +102,33 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   void initState() {
     super.initState();
 
+    dontAnimate = widget.disableAnimations;
+
     animationController = AnimationController(
         duration: const Duration(milliseconds: 500), vsync: this);
 
-    if (dontAnimate == null &&
-        !(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+    if (!dontAnimate && !(ConnectivityUtils.instance.getPhoneConnection)) {
+      this.dontAnimate = true;
       this.animationController.value = 1.0;
     }
 
-    disposable.add(
-        ConnectivityBloc.instance.connectivityStatusStream.listen((status) {
+    disposable
+        .add(ConnectivityUtils.instance.isPhoneConnectedStream.listen((status) {
       /// At the start, if we have a status set, we must consider that we came from another screen with that status
-      if (dontAnimate == null) {
+      if (!dontAnimate) {
         this.dontAnimate = true;
-        if (!(ConnectivityBloc.instance.connectivityStatusSubject.value ?? true)) {
+        if (!ConnectivityUtils.instance.getPhoneConnection) {
           this.animationController.value = 1.0;
         }
         return;
       }
+
       if (!status) {
         this.animationController.forward();
-        if (widget.offlineCallback != null) widget.offlineCallback();
+        if (widget.offlineCallback != null) widget.offlineCallback!();
       } else {
         this.animationController.reverse();
-        if (widget.onlineCallback != null) widget.onlineCallback();
+        if (widget.onlineCallback != null) widget.onlineCallback!();
       }
       this.dontAnimate = true;
     }));
@@ -135,32 +136,37 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = StreamBuilder(
-      stream: ConnectivityBloc.instance.connectivityStatusStream,
-      builder: (context, snapshot) => Stack(
-        children: <Widget>[
-          widget.builder(context, snapshot.data ?? true),
-          if (widget.showOfflineBanner && !(snapshot.data ?? true))
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: SlideTransition(
-                    position: animationController.drive(Tween<Offset>(
-                      begin: const Offset(0.0, 1.0),
-                      end: Offset.zero,
-                    ).chain(CurveTween(
-                      curve: Curves.fastOutSlowIn,
-                    ))),
-                    child: widget.offlineBanner ?? _NoConnectivityBanner()))
-        ],
-      )
-    );
+    Widget child = StreamBuilder<bool>(
+        stream: ConnectivityUtils.instance.isPhoneConnectedStream,
+        builder: (context, snapshot) => Stack(
+              children: <Widget>[
+                widget.builder?.call(context, snapshot.data ?? true) ??
+                    Container(),
+                if (widget.showOfflineBanner && !(snapshot.data ?? true))
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SlideTransition(
+                      position: animationController.drive(
+                        Tween<Offset>(
+                          begin: const Offset(0.0, 1.0),
+                          end: Offset.zero,
+                        ).chain(
+                          CurveTween(
+                            curve: Curves.fastOutSlowIn,
+                          ),
+                        ),
+                      ),
+                      child: widget.offlineBanner ?? NoConnectivityBanner(),
+                    ),
+                  )
+              ],
+            ));
     return child;
   }
 }
 
-
 /// Default Banner for offline mode
-class _NoConnectivityBanner extends StatelessWidget {
+class NoConnectivityBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
