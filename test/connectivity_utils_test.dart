@@ -185,9 +185,13 @@ void main() {
         utils.getConnectivityStatusSink.add(Event());
         utils.debounceDuration = duration;
         expectLater(
-            utils.isPhoneConnectedStream, emitsInOrder([isFalse, isTrue],),);
+          utils.isPhoneConnectedStream,
+          emitsInOrder(
+            [isFalse, isTrue],
+          ),
+        );
         await Future.delayed(Duration(seconds: 1));
-            await utils.dispose();
+        await utils.dispose();
       });
 
       test('only emits distinct values', () async {

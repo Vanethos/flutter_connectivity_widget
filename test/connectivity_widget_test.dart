@@ -249,8 +249,7 @@ void main() {
       await controller.close();
     });
 
-    testWidgets('builder is called with correct value',
-        (tester) async {
+    testWidgets('builder is called with correct value', (tester) async {
       utils = MockConnectivityUtils();
 
       final controller = StreamController<bool>.broadcast();
@@ -281,8 +280,7 @@ void main() {
       await controller.close();
     });
 
-    testWidgets('builder is called with the updated value',
-        (tester) async {
+    testWidgets('builder is called with the updated value', (tester) async {
       utils = MockConnectivityUtils();
 
       final controller = StreamController<bool>.broadcast();
