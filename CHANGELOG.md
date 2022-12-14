@@ -1,3 +1,13 @@
+# [1.0.0]
+* Null safety migration
+* Replaces `simple_connectivity` with `connectivity_plus`
+* Connection stream now only outputs distinct values
+* Removes the `ConnectivityBloc`
+* Rewrites `ConnectivityUtils`
+* adds Github Actions
+* adds tests
+* fixes misc bugs
+
 # [0.1.8]
 * Updates http dependency, via [#26](https://github.com/Vanethos/flutter_connectivity_widget/pull/26), thanks to jezer07 
 # [0.1.7]
