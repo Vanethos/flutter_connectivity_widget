@@ -34,13 +34,12 @@ class ConnectivityUtils {
   late http.Client _httpClient;
 
   /// Connectivity on/off events
-  BehaviorSubject<bool> _connectivitySubject =
-      BehaviorSubject<bool>.seeded(false);
+  BehaviorSubject<bool> _connectivitySubject = BehaviorSubject<bool>();
 
   Stream<bool> get isPhoneConnectedStream =>
       _connectivitySubject.stream.distinct();
 
-  bool get getPhoneConnection => _connectivitySubject.value;
+  bool? get getPhoneConnection => _connectivitySubject.valueOrNull;
 
   /// Event to check the network status
   PublishSubject<Event> _getConnectivityStatusSubject = PublishSubject<Event>();

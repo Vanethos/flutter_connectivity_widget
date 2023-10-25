@@ -75,6 +75,9 @@ class ConnectivityWidget extends StatefulWidget {
   /// Disables animations
   final bool disableAnimations;
 
+  /// Loader widget to show while the first connection check is in progress
+  final Widget? initialLoadingWidget;
+
   ConnectivityWidget(
       {required this.builder,
       this.onlineCallback,
@@ -82,6 +85,7 @@ class ConnectivityWidget extends StatefulWidget {
       this.showOfflineBanner = true,
       this.disableAnimations = false,
       this.offlineBanner,
+      this.initialLoadingWidget,
       Key? key})
       : super(key: key);
 
@@ -93,7 +97,7 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
     with SingleTickerProviderStateMixin {
   late bool _dontAnimate;
 
-  late AnimationController _animationController;
+  AnimationController? _animationController;
 
   StreamDisposable _disposable = StreamDisposable();
 
@@ -112,9 +116,10 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
       vsync: this,
     );
 
-    if (!_dontAnimate && !(ConnectivityUtils.instance.getPhoneConnection)) {
+    if (!_dontAnimate &&
+        !(ConnectivityUtils.instance.getPhoneConnection ?? false)) {
       this._dontAnimate = true;
-      this._animationController.value = 1.0;
+      this._animationController?.value = 1.0;
     }
 
     _disposable.add(
@@ -123,17 +128,17 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
           /// At the start, if we have a status set, we must consider that we came from another screen with that status
           if (!_dontAnimate) {
             this._dontAnimate = true;
-            if (!ConnectivityUtils.instance.getPhoneConnection) {
-              this._animationController.value = 1.0;
+            if (!(ConnectivityUtils.instance.getPhoneConnection ?? false)) {
+              this._animationController?.value = 1.0;
             }
             return;
           }
 
           if (!status) {
-            this._animationController.forward();
+            this._animationController?.forward();
             if (widget.offlineCallback != null) widget.offlineCallback!();
           } else {
-            this._animationController.reverse();
+            this._animationController?.reverse();
             if (widget.onlineCallback != null) widget.onlineCallback!();
           }
           this._dontAnimate = true;
@@ -146,35 +151,46 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
   Widget build(BuildContext context) {
     Widget child = StreamBuilder<bool>(
       stream: _connectedStream,
-      builder: (context, snapshot) => Stack(
-        children: <Widget>[
-          widget.builder.call(context, snapshot.data ?? true),
-          if (widget.showOfflineBanner && !(snapshot.data ?? true))
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SlideTransition(
-                position: _animationController.drive(
-                  Tween<Offset>(
-                    begin: const Offset(0.0, 1.0),
-                    end: Offset.zero,
-                  ).chain(
-                    CurveTween(
-                      curve: Curves.fastOutSlowIn,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return widget.initialLoadingWidget ??
+              Center(
+                child: CircularProgressIndicator(),
+              );
+        }
+
+        return Stack(
+          children: <Widget>[
+            widget.builder.call(context, snapshot.data ?? true),
+            if (widget.showOfflineBanner &&
+                !(snapshot.data ?? true) &&
+                _animationController != null)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                  position: _animationController!.drive(
+                    Tween<Offset>(
+                      begin: const Offset(0.0, 1.0),
+                      end: Offset.zero,
+                    ).chain(
+                      CurveTween(
+                        curve: Curves.fastOutSlowIn,
+                      ),
                     ),
                   ),
+                  child: widget.offlineBanner ?? NoConnectivityBanner(),
                 ),
-                child: widget.offlineBanner ?? NoConnectivityBanner(),
-              ),
-            )
-        ],
-      ),
+              )
+          ],
+        );
+      },
     );
     return child;
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _animationController?.dispose();
     _disposable.dispose();
     super.dispose();
   }

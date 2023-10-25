@@ -157,7 +157,7 @@ void main() {
     });
 
     group('GetConnectivityStatus', () {
-      test('defaults to false', () async {
+      test('does not have a default value', () async {
         when(() => response.statusCode).thenReturn(200);
         when(() => response.body).thenReturn('bananas');
         when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
@@ -167,7 +167,7 @@ void main() {
         );
         final utils = ConnectivityUtils.test(
             connectivity: connectivity, httpClient: client);
-        expectLater(utils.isPhoneConnectedStream, emitsInOrder([isFalse]));
+        expectLater(utils.isPhoneConnectedStream, emitsDone);
         await utils.dispose();
       });
 
@@ -187,7 +187,7 @@ void main() {
         expectLater(
           utils.isPhoneConnectedStream,
           emitsInOrder(
-            [isFalse, isTrue],
+            [isTrue],
           ),
         );
         await Future.delayed(Duration(seconds: 1));
@@ -206,8 +206,7 @@ void main() {
             connectivity: connectivity, httpClient: client);
         utils.serverToPing = serverToPing;
         utils.debounceDuration = duration;
-        expectLater(
-            utils.isPhoneConnectedStream, emitsInOrder([isFalse, isTrue]));
+        expectLater(utils.isPhoneConnectedStream, emitsInOrder([isTrue]));
         utils.getConnectivityStatusSink.add(Event());
         await Future.delayed(duration);
         await utils.dispose();
@@ -225,8 +224,8 @@ void main() {
             connectivity: connectivity, httpClient: client);
         utils.serverToPing = serverToPing;
         utils.debounceDuration = duration;
-        expectLater(utils.isPhoneConnectedStream,
-            emitsInOrder([isFalse, isTrue, isFalse]));
+        expectLater(
+            utils.isPhoneConnectedStream, emitsInOrder([isTrue, isFalse]));
         utils.getConnectivityStatusSink.add(Event());
         await Future.delayed(Duration(seconds: 1));
         const newServerToPing = 'https://my.app';
