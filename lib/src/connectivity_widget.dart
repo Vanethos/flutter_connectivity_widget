@@ -97,7 +97,8 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
 
   StreamDisposable _disposable = StreamDisposable();
 
-  Stream<bool> _connectedStream = ConnectivityUtils.instance.isPhoneConnectedStream;
+  Stream<bool> _connectedStream =
+      ConnectivityUtils.instance.isPhoneConnectedStream;
 
   @override
   @mustCallSuper
@@ -171,7 +172,7 @@ class ConnectivityWidgetState extends State<ConnectivityWidget>
     return child;
   }
 
-  @override 
+  @override
   void dispose() {
     _animationController.dispose();
     _disposable.dispose();
