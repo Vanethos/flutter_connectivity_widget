@@ -1,3 +1,6 @@
+# [1.2.0]
+* By default, we show a loading indicator instead of assuming we have no internet connection
+
 # [1.1.0]
 * Fixes library tests
 * Adds [child] as a required parameter
