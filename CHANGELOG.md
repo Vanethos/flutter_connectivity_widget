@@ -1,3 +1,8 @@
+# [1.1.0]
+* Fixes library tests
+* Adds [child] as a required parameter
+* Correctly dispose of resources
+
 # [1.0.0]
 * Null safety migration
 * Replaces `simple_connectivity` with `connectivity_plus`

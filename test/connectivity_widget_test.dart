@@ -16,8 +16,9 @@ void main() {
       utils = MockConnectivityUtils();
 
       when(() => utils.getPhoneConnection).thenReturn(false);
-      when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(false));
+      when(() => utils.isPhoneConnectedStream).thenAnswer(
+        (_) => Stream.value(false).asBroadcastStream(),
+      );
 
       ConnectivityUtils.setInstance(utils);
 
@@ -40,7 +41,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(true);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(true));
+          .thenAnswer((_) => Stream.value(true).asBroadcastStream(),);
 
       ConnectivityUtils.setInstance(utils);
 
@@ -62,7 +63,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(false);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(false));
+          .thenAnswer((_) => Stream.value(false).asBroadcastStream(),);
 
       ConnectivityUtils.setInstance(utils);
 
@@ -86,7 +87,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(false);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(false));
+          .thenAnswer((_) => Stream.value(false).asBroadcastStream(),);
 
       ConnectivityUtils.setInstance(utils);
 
@@ -109,7 +110,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(true);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(true));
+          .thenAnswer((_) => Stream.value(true).asBroadcastStream(),);
 
       ConnectivityUtils.setInstance(utils);
 
@@ -132,7 +133,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(false);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(false));
+          .thenAnswer((_) => Stream.value(false).asBroadcastStream(),);
 
       final child = Text("Bananas");
 
@@ -157,7 +158,7 @@ void main() {
 
       when(() => utils.getPhoneConnection).thenReturn(true);
       when(() => utils.isPhoneConnectedStream)
-          .thenAnswer((_) => Stream.value(true));
+          .thenAnswer((_) => Stream.value(true).asBroadcastStream(),);
 
       final child = Text("Bananas");
 
