@@ -48,7 +48,7 @@ class ConnectivityWidget extends StatefulWidget {
   /// Builder method for the child widget.
   ///
   /// Provides a [iSOnline] parameter and a [context] to build the child
-  final ConnectivityBuilder? builder;
+  final ConnectivityBuilder builder;
 
   /// Callback for when the device is online
   ///
@@ -76,7 +76,7 @@ class ConnectivityWidget extends StatefulWidget {
   final bool disableAnimations;
 
   ConnectivityWidget(
-      {this.builder,
+      {required this.builder,
       this.onlineCallback,
       this.offlineCallback,
       this.showOfflineBanner = true,
@@ -91,77 +91,91 @@ class ConnectivityWidget extends StatefulWidget {
 
 class ConnectivityWidgetState extends State<ConnectivityWidget>
     with SingleTickerProviderStateMixin {
-  late bool dontAnimate;
+  late bool _dontAnimate;
 
-  late AnimationController animationController;
+  late AnimationController _animationController;
 
-  StreamDisposable disposable = StreamDisposable();
+  StreamDisposable _disposable = StreamDisposable();
+
+  Stream<bool> _connectedStream = ConnectivityUtils.instance.isPhoneConnectedStream;
 
   @override
   @mustCallSuper
   void initState() {
     super.initState();
 
-    dontAnimate = widget.disableAnimations;
+    _dontAnimate = widget.disableAnimations;
 
-    animationController = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
 
-    if (!dontAnimate && !(ConnectivityUtils.instance.getPhoneConnection)) {
-      this.dontAnimate = true;
-      this.animationController.value = 1.0;
+    if (!_dontAnimate && !(ConnectivityUtils.instance.getPhoneConnection)) {
+      this._dontAnimate = true;
+      this._animationController.value = 1.0;
     }
 
-    disposable
-        .add(ConnectivityUtils.instance.isPhoneConnectedStream.listen((status) {
-      /// At the start, if we have a status set, we must consider that we came from another screen with that status
-      if (!dontAnimate) {
-        this.dontAnimate = true;
-        if (!ConnectivityUtils.instance.getPhoneConnection) {
-          this.animationController.value = 1.0;
-        }
-        return;
-      }
+    _disposable.add(
+      _connectedStream.listen(
+        (status) {
+          /// At the start, if we have a status set, we must consider that we came from another screen with that status
+          if (!_dontAnimate) {
+            this._dontAnimate = true;
+            if (!ConnectivityUtils.instance.getPhoneConnection) {
+              this._animationController.value = 1.0;
+            }
+            return;
+          }
 
-      if (!status) {
-        this.animationController.forward();
-        if (widget.offlineCallback != null) widget.offlineCallback!();
-      } else {
-        this.animationController.reverse();
-        if (widget.onlineCallback != null) widget.onlineCallback!();
-      }
-      this.dontAnimate = true;
-    }));
+          if (!status) {
+            this._animationController.forward();
+            if (widget.offlineCallback != null) widget.offlineCallback!();
+          } else {
+            this._animationController.reverse();
+            if (widget.onlineCallback != null) widget.onlineCallback!();
+          }
+          this._dontAnimate = true;
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     Widget child = StreamBuilder<bool>(
-        stream: ConnectivityUtils.instance.isPhoneConnectedStream,
-        builder: (context, snapshot) => Stack(
-              children: <Widget>[
-                widget.builder?.call(context, snapshot.data ?? true) ??
-                    Container(),
-                if (widget.showOfflineBanner && !(snapshot.data ?? true))
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SlideTransition(
-                      position: animationController.drive(
-                        Tween<Offset>(
-                          begin: const Offset(0.0, 1.0),
-                          end: Offset.zero,
-                        ).chain(
-                          CurveTween(
-                            curve: Curves.fastOutSlowIn,
-                          ),
-                        ),
-                      ),
-                      child: widget.offlineBanner ?? NoConnectivityBanner(),
+      stream: _connectedStream,
+      builder: (context, snapshot) => Stack(
+        children: <Widget>[
+          widget.builder.call(context, snapshot.data ?? true),
+          if (widget.showOfflineBanner && !(snapshot.data ?? true))
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SlideTransition(
+                position: _animationController.drive(
+                  Tween<Offset>(
+                    begin: const Offset(0.0, 1.0),
+                    end: Offset.zero,
+                  ).chain(
+                    CurveTween(
+                      curve: Curves.fastOutSlowIn,
                     ),
-                  )
-              ],
-            ));
+                  ),
+                ),
+                child: widget.offlineBanner ?? NoConnectivityBanner(),
+              ),
+            )
+        ],
+      ),
+    );
     return child;
+  }
+
+  @override 
+  void dispose() {
+    _animationController.dispose();
+    _disposable.dispose();
+    super.dispose();
   }
 }
 
@@ -170,14 +184,18 @@ class NoConnectivityBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.all(8),
-        width: double.infinity,
-        color: Colors.red,
-        child: Text(
-          "No connectivity",
-          style: TextStyle(
-              fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ));
+      padding: EdgeInsets.all(8),
+      width: double.infinity,
+      color: Colors.red,
+      child: Text(
+        "No connectivity",
+        style: TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }
