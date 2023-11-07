@@ -99,6 +99,21 @@ void main() {
         expect(result, isFalse);
       });
 
+      test('if we exceed timeout, we return false', () async {
+        when(() => response.statusCode).thenReturn(200);
+        when(() => response.body).thenReturn('bananas');
+        when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
+          (invocation) => Future.delayed(
+            Duration(seconds: 10),
+          ),
+        );
+        final utils = ConnectivityUtils.test(
+            connectivity: connectivity, httpClient: client);
+        utils.serverToPing = serverToPing;
+        final result = await utils.isPhoneConnected();
+        expect(result, isFalse);
+      });
+
       test('if verify response callback returns true, we verify response',
           () async {
         final utils = ConnectivityUtils.test(

@@ -29,6 +29,10 @@ class ConnectivityUtils {
   /// connectivity status, defaults to 3 seconds
   late Duration _debounceDuration;
 
+  // When doing the http call to verify if we are connected, we fail with
+  // a timeout after 3 seconds
+  late Duration _timeoutDuration;
+
   late Connectivity _connectivity;
 
   late http.Client _httpClient;
@@ -78,7 +82,8 @@ class ConnectivityUtils {
   })  : _httpClient = httpClient,
         _connectivity = connectivity,
         _serverToPing = "http://www.gstatic.com/generate_204",
-        _debounceDuration = Duration(seconds: 3) {
+        _debounceDuration = Duration(seconds: 3),
+        _timeoutDuration = Duration(seconds: 2) {
     _init();
   }
 
@@ -86,7 +91,8 @@ class ConnectivityUtils {
       : _connectivity = Connectivity(),
         _httpClient = http.Client(),
         _serverToPing = "http://www.gstatic.com/generate_204",
-        _debounceDuration = Duration(seconds: 3) {
+        _debounceDuration = Duration(seconds: 3),
+        _timeoutDuration = Duration(seconds: 2) {
     _init();
   }
 
@@ -152,6 +158,14 @@ class ConnectivityUtils {
     }
   }
 
+  /// Sets a new Duration for the timeout
+  set timeoutDuration(Duration duration) {
+    this.timeoutDuration = duration;
+    if (!_getConnectivityStatusSubject.isClosed) {
+      _getConnectivityStatusSubject.add(Event());
+    }
+  }
+
   Duration get debounceDuration => this._debounceDuration;
 
   /// Checkf if phone is connected to the internet
@@ -163,9 +177,16 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
-      final result = await _httpClient.get(
-        Uri.parse(_serverToPing),
-      );
+      final result = await _httpClient
+          .get(
+            Uri.parse(_serverToPing),
+          )
+          .timeout(
+            _timeoutDuration,
+            onTimeout: () => throw TimeoutException(
+              'Exceeded timeout time',
+            ),
+          );
       if (result.statusCode > 199 &&
           result.statusCode < 400 &&
           (_verifyResponseCallback?.call(result.body) ?? true)) {

@@ -1,3 +1,6 @@
+# [1.4.0]
+* Added the [timeoutDuration] parameter
+
 # [1.3.0]
 * When doing a `[isPhoneConnected]`, we add values to the stream
 

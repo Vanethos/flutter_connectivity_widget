@@ -41,6 +41,12 @@ It also provides both a `onlineCallback` and a `offlineCallback` that are called
 
 If there is a need to change the default offline banner, a Widget can be provided to the `offlineBanner` parameter. Additionally, its visibility can be enabled or disabled by using the `showOfflineBanner` parameter.
 
+## Configurable Parameters:
+- `serverToPing`;
+- `timeoutDuration`;
+- `debounceDuration`;
+- `verifyResponseCallback`;
+
 ## Changing the server to ping and the response verification
 
 By default, the Connectivity Widget checks if there is a connection to `http://www.google.com`. If you want to check the availability of a custom endpoint, you can set a new endpoint to ping and a callback to verify the response.
