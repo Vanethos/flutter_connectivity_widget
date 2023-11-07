@@ -1,4 +1,4 @@
-# [1.2.0]
+# [1.3.0]
 * When doing a `[isPhoneConnected]`, we add values to the stream
 
 # [1.2.0]
