@@ -157,7 +157,7 @@ void main() {
     });
 
     group('GetConnectivityStatus', () {
-      test('does not have a default value', () async {
+      test('when initializing, we will get the first status', () async {
         when(() => response.statusCode).thenReturn(200);
         when(() => response.body).thenReturn('bananas');
         when(() => client.get(Uri.parse(serverToPing))).thenAnswer(

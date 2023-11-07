@@ -105,18 +105,16 @@ class ConnectivityUtils {
     _getConnectivityStatusSubject.stream
         .asyncMap((_) => isPhoneConnected())
         .listen((value) async {
-      if (!_connectivitySubject.isClosed) {
-        _connectivitySubject.add(value);
-      }
-
       /// Every duration we will ping the service to see if we are live
       await Future.delayed(_debounceDuration);
       if (!_getConnectivityStatusSubject.isClosed) {
         _getConnectivityStatusSubject.add(Event());
       }
     }, onError: (error) async {
-      if (!_connectivitySubject.value) {
-        _connectivitySubject.add(false);
+      if (!(_connectivitySubject.valueOrNull ?? false)) {
+        if (!_connectivitySubject.isClosed) {
+          _connectivitySubject.add(false);
+        }
       }
       // if we are offline, retry until we are online
       await Future.delayed(_debounceDuration);
@@ -141,11 +139,17 @@ class ConnectivityUtils {
   /// Sets a new VerifyResponseCallback
   set verifyResponseCallback(VerifyResponseCallback callback) {
     this._verifyResponseCallback = callback;
+    if (!_getConnectivityStatusSubject.isClosed) {
+      _getConnectivityStatusSubject.add(Event());
+    }
   }
 
   /// Sets a new Duration for the verification
   set debounceDuration(Duration duration) {
     this._debounceDuration = duration;
+    if (!_getConnectivityStatusSubject.isClosed) {
+      _getConnectivityStatusSubject.add(Event());
+    }
   }
 
   Duration get debounceDuration => this._debounceDuration;
@@ -165,11 +169,14 @@ class ConnectivityUtils {
       if (result.statusCode > 199 &&
           result.statusCode < 400 &&
           (_verifyResponseCallback?.call(result.body) ?? true)) {
+        _connectivitySubject.add(true);
         return true;
       }
     } catch (e) {
+      _connectivitySubject.add(false);
       return false;
     }
+    _connectivitySubject.add(false);
     return false;
   }
 

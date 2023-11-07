@@ -71,7 +71,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.1.0"
+    version: "1.2.0"
   dbus:
     dependency: transitive
     description:
@@ -248,10 +248,10 @@ packages:
     dependency: transitive
     description:
       name: stream_disposable
-      sha256: "7c016e39141af2a0cb8dcf82be7a9338f880930cc3ddd2155afa89d9e8dd6f87"
+      sha256: ed15757404db8f27be667dd9f9606cf5adb89911b7227b246638970f04b3515d
       url: "https://pvotaltech.jfrog.io/artifactory/api/pub/pvotal-pub/"
     source: hosted
-    version: "1.0.0"
+    version: "2.0.0"
   string_scanner:
     dependency: transitive
     description:

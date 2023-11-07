@@ -1,4 +1,7 @@
 # [1.2.0]
+* When doing a `[isPhoneConnected]`, we add values to the stream
+
+# [1.2.0]
 * By default, we show a loading indicator instead of assuming we have no internet connection
 
 # [1.1.0]
