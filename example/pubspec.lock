@@ -71,7 +71,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.2.0"
+    version: "1.4.0"
   dbus:
     dependency: transitive
     description:
@@ -207,6 +207,14 @@ packages:
       url: "https://pvotaltech.jfrog.io/artifactory/api/pub/pvotal-pub/"
     source: hosted
     version: "2.1.6"
+  retry:
+    dependency: transitive
+    description:
+      name: retry
+      sha256: "822e118d5b3aafed083109c72d5f484c6dc66707885e07c0fbcb8b986bba7efc"
+      url: "https://pvotaltech.jfrog.io/artifactory/api/pub/pvotal-pub/"
+    source: hosted
+    version: "3.1.2"
   rxdart:
     dependency: transitive
     description:
