@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -39,9 +40,20 @@ class ConnectivityUtils {
   /// [isPhoneConnectedStream]
   late int _retries;
 
+  /// The number of consecutive successfull calls needed for the system to state that
+  /// there is a valid internet connection.
+  ///
+  /// Defaults to 1, meaning that the first valid call validates the system as connected
+  /// to the internet
+  late int _minSuccessCalls;
+
   late Connectivity _connectivity;
 
   late http.Client _httpClient;
+
+  int _currentSuccessCalls = 0;
+
+  int _currentErrorCalls = 0;
 
   /// Connectivity on/off events
   BehaviorSubject<bool> _connectivitySubject = BehaviorSubject<bool>();
@@ -86,13 +98,15 @@ class ConnectivityUtils {
     required Connectivity connectivity,
     required http.Client httpClient,
     int retries = 0,
+    int minSuccessCalls = 1,
     String? serverToPing,
   })  : _httpClient = httpClient,
         _connectivity = connectivity,
         _serverToPing = serverToPing ?? "http://www.gstatic.com/generate_204",
         _debounceDuration = Duration(seconds: 3),
         _timeoutDuration = Duration(seconds: 2),
-        _retries = retries {
+        _retries = retries,
+        _minSuccessCalls = minSuccessCalls {
     _init();
   }
 
@@ -102,7 +116,8 @@ class ConnectivityUtils {
         _serverToPing = "http://www.gstatic.com/generate_204",
         _debounceDuration = Duration(seconds: 3),
         _timeoutDuration = Duration(seconds: 2),
-        _retries = 0 {
+        _retries = 0,
+        _minSuccessCalls = 1 {
     _init();
   }
 
@@ -178,9 +193,17 @@ class ConnectivityUtils {
 
   Duration get debounceDuration => this._debounceDuration;
 
-  /// Sets a new number of tries before calling error callback
+  /// Sets a new number of tries before setting connection to false
   set retries(int retries) {
     this._retries = retries;
+    if (!_getConnectivityStatusSubject.isClosed) {
+      _getConnectivityStatusSubject.add(Event());
+    }
+  }
+
+  /// Sets a new number of success calls before setting connection to true
+  set minSuccessCalls(int minSuccessCalls) {
+    this._minSuccessCalls = minSuccessCalls;
     if (!_getConnectivityStatusSubject.isClosed) {
       _getConnectivityStatusSubject.add(Event());
     }
@@ -211,20 +234,38 @@ class ConnectivityUtils {
             if (result.statusCode > 199 &&
                 result.statusCode < 400 &&
                 (_verifyResponseCallback?.call(result.body) ?? true)) {
+              _currentSuccessCalls++;
+              _currentErrorCalls = 0;
+
+              if (_currentSuccessCalls < _minSuccessCalls) {
+                throw _InsufficientConsecutiveCallsException();
+              }
+
+              _currentSuccessCalls = 0;
               return true;
             }
 
+            _currentErrorCalls++;
             throw TimeoutException("Exceeded timeout time between calls");
           },
         ),
-        maxAttempts: _retries,
+        retryIf: (exc) =>
+            exc is _InsufficientConsecutiveCallsException &&
+                _currentSuccessCalls < _minSuccessCalls ||
+            exc is TimeoutException && _currentErrorCalls < _retries,
+        maxAttempts: max(_retries, _minSuccessCalls),
       );
+
+      _currentSuccessCalls = 0;
+      _currentErrorCalls = 0;
 
       if (result) {
         _connectivitySubject.add(true);
         return true;
       }
     } catch (e) {
+      _currentSuccessCalls = 0;
+      _currentErrorCalls = 0;
       _connectivitySubject.add(false);
       return false;
     }
@@ -237,3 +278,6 @@ class ConnectivityUtils {
     await _getConnectivityStatusSubject.close();
   }
 }
+
+/// Helper exception to signal a success call
+class _InsufficientConsecutiveCallsException implements Exception {}
