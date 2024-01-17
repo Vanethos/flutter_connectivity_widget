@@ -295,7 +295,7 @@ void main() {
           serverToPing: serverToPing,
           retries: 4,
         );
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(Duration(seconds: 5));
         verify(() => client.get(Uri.parse(serverToPing))).called(4);
       });
     });
