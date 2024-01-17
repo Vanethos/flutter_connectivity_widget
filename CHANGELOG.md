@@ -1,3 +1,6 @@
+# [1.5.0]
+* Adds [retries] to retry connection to server [retries] times before setting connection as false. Defaults to 0.
+
 # [1.4.0]
 * Added the [timeoutDuration] parameter
 
