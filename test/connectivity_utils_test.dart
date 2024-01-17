@@ -298,6 +298,46 @@ void main() {
         await Future.delayed(Duration(seconds: 5));
         verify(() => client.get(Uri.parse(serverToPing))).called(4);
       });
+
+      test(
+          'if minSuccessCalls is set to 1, the server is called 1 time before retrieving true',
+          () async {
+        when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
+          (invocation) => Future.value(
+            response,
+          ),
+        );
+        when(() => response.statusCode).thenReturn(200);
+        when(() => response.body).thenReturn('bananas');
+        ConnectivityUtils.test(
+          connectivity: connectivity,
+          httpClient: client,
+          serverToPing: serverToPing,
+          minSuccessCalls: 1,
+        );
+        await Future.delayed(Duration(milliseconds: 500));
+        verify(() => client.get(Uri.parse(serverToPing))).called(1);
+      });
+
+      test(
+          'if minSuccessCalls is set to 4, the server is called 4 time before retrieving true',
+          () async {
+        when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
+          (invocation) => Future.value(
+            response,
+          ),
+        );
+        when(() => response.statusCode).thenReturn(200);
+        when(() => response.body).thenReturn('bananas');
+        ConnectivityUtils.test(
+          connectivity: connectivity,
+          httpClient: client,
+          serverToPing: serverToPing,
+          minSuccessCalls: 4,
+        );
+        await Future.delayed(Duration(seconds: 5));
+        verify(() => client.get(Uri.parse(serverToPing))).called(4);
+      });
     });
   });
 }

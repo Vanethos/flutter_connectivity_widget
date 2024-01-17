@@ -1,3 +1,6 @@
+# [1.6.0]
+* Adds [minSuccessCalls] to assure a minimum of [minSuccessCalls] success calls times before setting connection as true. Defaults to 1.
+
 # [1.5.0]
 * Adds [retries] to retry connection to server [retries] times before setting connection as false. Defaults to 0.
 
