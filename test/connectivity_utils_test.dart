@@ -259,6 +259,45 @@ void main() {
 
         await utils.dispose();
       });
+
+      test('if retries is set to 0, the server is pinged 1 time only on error',
+          () async {
+        when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
+          (invocation) => Future.value(
+            response,
+          ),
+        );
+        when(() => response.statusCode).thenReturn(500);
+        when(() => response.body).thenReturn('bananas');
+        ConnectivityUtils.test(
+          connectivity: connectivity,
+          httpClient: client,
+          retries: 0,
+          serverToPing: serverToPing,
+        );
+        await Future.delayed(Duration(milliseconds: 500));
+        verify(() => client.get(Uri.parse(serverToPing))).called(1);
+      });
+
+      test(
+          'if retries is set to 4, the server is called 4 times before retrieving false',
+          () async {
+        when(() => client.get(Uri.parse(serverToPing))).thenAnswer(
+          (invocation) => Future.value(
+            response,
+          ),
+        );
+        when(() => response.statusCode).thenReturn(500);
+        when(() => response.body).thenReturn('bananas');
+        ConnectivityUtils.test(
+          connectivity: connectivity,
+          httpClient: client,
+          serverToPing: serverToPing,
+          retries: 4,
+        );
+        await Future.delayed(Duration(seconds: 5));
+        verify(() => client.get(Uri.parse(serverToPing))).called(4);
+      });
     });
   });
 }

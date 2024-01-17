@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:retry/retry.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:http/http.dart' as http;
@@ -32,6 +33,11 @@ class ConnectivityUtils {
   // When doing the http call to verify if we are connected, we fail with
   // a timeout after 3 seconds
   late Duration _timeoutDuration;
+
+  /// If set to 0, as soon as the first call has an error, [isPhoneConnectedStream] changes state.
+  /// Else, it will retry the call [retries] times before changing the state on
+  /// [isPhoneConnectedStream]
+  late int _retries;
 
   late Connectivity _connectivity;
 
@@ -79,11 +85,14 @@ class ConnectivityUtils {
   ConnectivityUtils.test({
     required Connectivity connectivity,
     required http.Client httpClient,
+    int retries = 0,
+    String? serverToPing,
   })  : _httpClient = httpClient,
         _connectivity = connectivity,
-        _serverToPing = "http://www.gstatic.com/generate_204",
+        _serverToPing = serverToPing ?? "http://www.gstatic.com/generate_204",
         _debounceDuration = Duration(seconds: 3),
-        _timeoutDuration = Duration(seconds: 2) {
+        _timeoutDuration = Duration(seconds: 2),
+        _retries = retries {
     _init();
   }
 
@@ -92,7 +101,8 @@ class ConnectivityUtils {
         _httpClient = http.Client(),
         _serverToPing = "http://www.gstatic.com/generate_204",
         _debounceDuration = Duration(seconds: 3),
-        _timeoutDuration = Duration(seconds: 2) {
+        _timeoutDuration = Duration(seconds: 2),
+        _retries = 0 {
     _init();
   }
 
@@ -168,6 +178,14 @@ class ConnectivityUtils {
 
   Duration get debounceDuration => this._debounceDuration;
 
+  /// Sets a new number of tries before calling error callback
+  set retries(int retries) {
+    this._retries = retries;
+    if (!_getConnectivityStatusSubject.isClosed) {
+      _getConnectivityStatusSubject.add(Event());
+    }
+  }
+
   /// Checkf if phone is connected to the internet
   ///
   /// This method tries to access google.com to verify for
@@ -177,19 +195,32 @@ class ConnectivityUtils {
   /// internet
   Future<bool> isPhoneConnected() async {
     try {
-      final result = await _httpClient
-          .get(
-            Uri.parse(_serverToPing),
-          )
-          .timeout(
-            _timeoutDuration,
-            onTimeout: () => throw TimeoutException(
-              'Exceeded timeout time',
-            ),
-          );
-      if (result.statusCode > 199 &&
-          result.statusCode < 400 &&
-          (_verifyResponseCallback?.call(result.body) ?? true)) {
+      final result = await retry(
+        () => _httpClient
+            .get(
+              Uri.parse(_serverToPing),
+            )
+            .timeout(
+              _timeoutDuration,
+              onTimeout: () => throw TimeoutException(
+                'Exceeded timeout time',
+              ),
+            )
+            .then(
+          (result) {
+            if (result.statusCode > 199 &&
+                result.statusCode < 400 &&
+                (_verifyResponseCallback?.call(result.body) ?? true)) {
+              return true;
+            }
+
+            throw TimeoutException("Exceeded timeout time between calls");
+          },
+        ),
+        maxAttempts: _retries,
+      );
+
+      if (result) {
         _connectivitySubject.add(true);
         return true;
       }
