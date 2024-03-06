@@ -1,24 +1,24 @@
 name: connectivity_widget
 description: A widget that shows the user if the phone is connected to the internet or not
-version: 1.6.0
+version: 2.0.0
 homepage: https://github.com/Vanethos/flutter_connectivity_widget/
 issue_tracker: https://github.com/Vanethos/flutter_connectivity_widget/issues
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.17.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   rxdart: ^0.27.7
-  connectivity_plus: ^3.0.2
+  connectivity_plus: ^5.0.2
   stream_disposable: ^2.0.0
-  http: ^0.13.5
+  http: ^1.2.1
   retry: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^0.3.0
+  mocktail: ^1.0.3
 
 flutter:

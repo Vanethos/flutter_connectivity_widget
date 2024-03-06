@@ -1,3 +1,8 @@
+# [2.0.0]
+* Updates Dart SDK to support versions until the next SDK release (4.0.0)
+* Updates [http] package to version 1.2.1
+* Updates [connectivity_plus] package to version 5.0.2
+
 # [1.6.0]
 * Adds [minSuccessCalls] to assure a minimum of [minSuccessCalls] success calls times before setting connection as true. Defaults to 1.
 
