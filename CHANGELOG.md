@@ -1,3 +1,6 @@
+# [3.0.0]
+* Updates [connectivity_plus] package to version 6.0.3
+
 # [2.0.0]
 * Updates Dart SDK to support versions until the next SDK release (4.0.0)
 * Updates [http] package to version 1.2.1
